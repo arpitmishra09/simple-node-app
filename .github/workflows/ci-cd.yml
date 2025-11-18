@@ -11,13 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
+
       - name: Install dependencies
         run: npm ci
+
       - name: Run tests
         run: npm test
 
@@ -26,12 +29,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Build Docker image
         run: |
           IMAGE_NAME=${{ github.repository }}:${{ github.sha }}
           docker build -t $IMAGE_NAME .
+
       - name: Login and push to Docker Hub (optional)
-        if: ${{ secrets.DOCKERHUB_USERNAME && secrets.DOCKERHUB_TOKEN }}
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
