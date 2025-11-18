@@ -38,12 +38,17 @@ jobs:
           docker build -t $IMAGE_NAME .
 
       - name: Login & Push to Docker Hub
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        if: always()
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           IMAGE_NAME: ${{ github.repository }}:${{ github.sha }}
         run: |
+          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+            echo "Skipping Docker push (secrets not set)"
+            exit 0
+          fi
+
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           docker tag "$IMAGE_NAME" "$DOCKERHUB_USERNAME/${{ github.event.repository.name }}:latest"
           docker push "$DOCKERHUB_USERNAME/${{ github.event.repository.name }}:latest"
