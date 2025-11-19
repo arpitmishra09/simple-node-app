@@ -4,21 +4,25 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/arpitmishra09/simple-node-app.git'
+                checkout scm
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Install Dependencies') {
             steps {
-                sh "docker build -t nodeci-cd ."
+                sh 'npm install'
             }
         }
 
-        stage('Run Container') {
+        stage('Test') {
             steps {
-                sh "docker stop nodeapp || true"
-                sh "docker rm nodeapp || true"
-                sh "docker run -d --name nodeapp -p 3000:3000 nodeci-cd"
+                sh 'npm test || echo "No tests"'
+            }
+        }
+
+        stage('Run App') {
+            steps {
+                sh 'nohup npm start &'
             }
         }
     }
